@@ -22,13 +22,11 @@ public class AccessController : Controller
         if (HttpContext.Session.GetString("UserName") == null)
 
         {
-            var u = db.TUsers.Where(x => x.Username.Equals(user.Username) && x.Password.Equals(user.Password))
-                .FirstOrDefault();
-            if (u != null)
-            {
-                HttpContext.Session.SetString("UserName", u.Username.ToString());
-                return RedirectToAction("Index", "Home");
-            }
+            var u = db.TUsers
+                .FirstOrDefault(x => x.Username.Equals(user.Username) && x.Password.Equals(user.Password));
+            if (u == null) return View();
+            HttpContext.Session.SetString("UserName", u.Username.ToString());
+            return RedirectToAction("Index", "Home");
         }
 
         return View();
@@ -46,26 +44,23 @@ public class AccessController : Controller
     [HttpPost]
     public IActionResult SignUp(TUser user)
     {
-        if (HttpContext.Session.GetString("UserName") == null)
+        if (HttpContext.Session.GetString("UserName") != null) return View();
+        // check user is exit
+        var u = db.TUsers.FirstOrDefault(x => x.Username.Equals(user.Username));
+        if (u != null)
         {
-            // check user is exit
-            var u = db.TUsers.Where(x => x.Username.Equals(user.Username)).FirstOrDefault();
-            if (u != null)
-            {
-                ViewBag.Message = "User is exit";
-                return RedirectToAction("Login", "Access");
-            }
-
-            user.LoaiUser = 0;
-
-            db.TUsers.Add(user);
-            db.SaveChanges();
-            ViewBag.Message = "Sign up success";
-
+            ViewBag.Message = "User is exit";
             return RedirectToAction("Login", "Access");
         }
 
-        return View();
+        user.LoaiUser = 0;
+
+        db.TUsers.Add(user);
+        db.SaveChanges();
+        ViewBag.Message = "Sign up success";
+
+        return RedirectToAction("Login", "Access");
+
     }
 
     public IActionResult Logout()

@@ -10,14 +10,14 @@ namespace ecommerce_dotnet_mvc.Areas.Admin.Controllers;
 [Route("admin/useradmin")]
 public class UserAdminController : Controller
 {
-    private QlBanValiContext db = new();
+    private readonly QlBanValiContext _db = new();
 
     [Route("AllUsers")]
     public IActionResult AllUsers(int? page)
     {
-        var pageSize = 12;
-        var pageNumber = page == null || page < 0 ? 1 : page.Value;
-        var users = db.TUsers.AsNoTracking().OrderBy(x => x.Username);
+        const int pageSize = 12;
+        var pageNumber = page is null or < 0 ? 1 : page.Value;
+        var users = _db.TUsers.AsNoTracking().OrderBy(x => x.Username);
         PagedList<TUser> lst = new(users, pageNumber, pageSize);
         return View(lst);
     }
@@ -34,21 +34,18 @@ public class UserAdminController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult AddUser(TUser user)
     {
-        if (ModelState.IsValid)
-        {
-            db.TUsers.Add(user);
-            db.SaveChanges();
-            return RedirectToAction("AllUsers");
-        }
+        if (!ModelState.IsValid) return View(user);
+        _db.TUsers.Add(user);
+        _db.SaveChanges();
+        return RedirectToAction("AllUsers");
 
-        return View(user);
     }
 
     [Route("EditUser")]
     [HttpGet]
     public IActionResult EditUser(string username)
     {
-        var user = db.TUsers.Find(username);
+        var user = _db.TUsers.Find(username);
         return View(user);
     }
 
@@ -59,8 +56,8 @@ public class UserAdminController : Controller
     {
         if (ModelState.IsValid)
         {
-            db.Entry(user).State = EntityState.Modified;
-            db.SaveChanges();
+            _db.Entry(user).State = EntityState.Modified;
+            _db.SaveChanges();
             return RedirectToAction("AllUsers");
         }
 
@@ -73,22 +70,22 @@ public class UserAdminController : Controller
     {
         TempData["Message"] = "";
 
-        var khachhang = db.TKhachHangs.Where(x => x.Username == username).ToList();
-        if (khachhang.Count() > 0)
+        var khachhang = _db.TKhachHangs.Where(x => x.Username == username).ToList();
+        if (khachhang.Count != 0)
         {
             TempData["Message"] = "Không xóa được người dùng này";
             return RedirectToAction("AllUsers", "UserAdmin");
         }
 
-        var nhanvien = db.TKhachHangs.Where(x => x.Username == username).ToList();
-        if (nhanvien.Count() > 0)
+        var nhanvien = _db.TKhachHangs.Where(x => x.Username == username).ToList();
+        if (nhanvien.Any())
         {
             TempData["Message"] = "Không xóa được người dùng này";
             return RedirectToAction("AllUsers", "UserAdmin");
         }
 
-        db.Remove(db.TUsers.Find(username));
-        db.SaveChanges();
+        _db.Remove(_db.TUsers.Find(username));
+        _db.SaveChanges();
         TempData["Message"] = "Người dùng đã được xóa";
         return RedirectToAction("AllUsers", "UserAdmin");
     }

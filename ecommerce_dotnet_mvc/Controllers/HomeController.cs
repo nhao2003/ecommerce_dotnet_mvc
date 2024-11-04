@@ -8,20 +8,15 @@ using X.PagedList;
 
 namespace ecommerce_dotnet_mvc.Controllers;
 
-public class HomeController : Controller
+public class HomeController(ILogger<HomeController> logger) : Controller
 {
-    private QlBanValiContext db = new();
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
-    {
-        _logger = logger;
-    }
+    private readonly QlBanValiContext db = new();
+    private readonly ILogger<HomeController> _logger = logger;
 
     [Authentication]
     public IActionResult Index(int? page)
     {
-        var pageSize = 8;
+        const int pageSize = 8;
         var pageNumber = page == null || page < 0 ? 1 : page.Value;
         var lstsanpham = db.TDanhMucSps.AsNoTracking().OrderBy(x => x.TenSp);
         PagedList<TDanhMucSp> lst = new(lstsanpham, pageNumber, pageSize);
@@ -31,7 +26,7 @@ public class HomeController : Controller
     [Authentication]
     public IActionResult SanPhamTheoLoai(string maloai, int? page)
     {
-        var pageSize = 8;
+        const int pageSize = 8;
         var pageNumber = page == null || page < 0 ? 1 : page.Value;
         var lstsanpham = db.TDanhMucSps.AsNoTracking().Where
             (x => x.MaLoai == maloai).OrderBy(x => x.TenSp);

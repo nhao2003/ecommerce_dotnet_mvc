@@ -7,15 +7,15 @@ namespace ecommerce_dotnet_mvc.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ProductAPIController : ControllerBase
+public class ProductApiController : ControllerBase
 {
-    private QlBanValiContext db = new();
+    private readonly QlBanValiContext _db = new();
 
     [HttpGet]
     public IEnumerable<Product> GetAllProducts()
     {
         //return db.TDanhMucSps.ToList();
-        var products = (from p in db.TDanhMucSps
+        var products = (from p in _db.TDanhMucSps
             select new Product
             {
                 MaSp = p.MaSp,
@@ -32,7 +32,7 @@ public class ProductAPIController : ControllerBase
     public IEnumerable<Product> GetAllProductsByCategory(string maloai)
     {
         //return db.TDanhMucSps.ToList();
-        var products = (from p in db.TDanhMucSps
+        var products = (from p in _db.TDanhMucSps
             where p.MaLoai == maloai
             select new Product
             {
