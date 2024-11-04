@@ -1,0 +1,61 @@
+﻿@model IEnumerable<ecommerce_dotnet_mvc.Models.TUser>
+
+@{
+    ViewData["Title"] = "AllUsers";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<h1>Quản lý người dùng</h1>
+
+<p>
+    <a asp-action="AddUser">Create New</a>
+</p>
+<p>@TempData["Message"]</p>
+<table class="table">
+    <thead>
+    <tr class="table-warning">
+        <th>
+            @Html.DisplayNameFor(model => model.Username)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Password)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.LoaiUser)
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @{
+        var i = 0;
+        var @cls = "table-success";
+    }
+    @foreach (var item in Model)
+    {
+        i = i + 1;
+        cls = "table-success";
+        if (i % 2 == 0)
+        {
+            cls = "table-primary";
+        }
+
+        <tr class="@cls">
+            <td>
+                @Html.DisplayFor(modelItem => item.Username)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Password)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LoaiUser)
+            </td>
+            <td>
+                <a asp-action="EditUser" asp-route-username="@item.Username">Edit</a> |
+                <a asp-action="DeleteUser" asp-route-username="@item.Username">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
